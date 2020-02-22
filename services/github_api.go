@@ -68,7 +68,7 @@ func SearchCommit() ([]*TrimmedCommitItem, error) {
 	}
 	rawQuery := strings.Join(keywords, " OR ")
 	encodedQuery := url.QueryEscape(rawQuery)
-	searchURL := fmt.Sprintf("%s?q=%s", apiURL, encodedQuery)
+	searchURL := fmt.Sprintf("%s?q=%s&sort=author-date", apiURL, encodedQuery)
 	log.Println("run new commit search")
 	req, err := http.NewRequest("GET", searchURL, nil)
 	if err != nil {
@@ -93,6 +93,9 @@ func SearchCommit() ([]*TrimmedCommitItem, error) {
 	}
 	result := []*TrimmedCommitItem{}
 	for _, item := range uResp.Items {
+		if len(item.Commit.Message) >= 120 {
+			continue
+		}
 		trimmedItem := &TrimmedCommitItem{
 			URL:     item.HTMLURL,
 			Author:  item.Commit.Author.Name,
