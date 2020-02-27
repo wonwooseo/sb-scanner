@@ -58,8 +58,8 @@ var keywords = []string{"ㅅㅂ", "시바"} // Max. 5 OR operators
 
 var client *http.Client
 
-// SearchCommit _
-func SearchCommit() ([]*TrimmedCommitItem, error) {
+// SearchLatestCommit _
+func SearchLatestCommit() ([]*TrimmedCommitItem, error) {
 	if client == nil {
 		log.Println("init new http client")
 		client = &http.Client{
@@ -68,7 +68,7 @@ func SearchCommit() ([]*TrimmedCommitItem, error) {
 	}
 	rawQuery := strings.Join(keywords, " OR ")
 	encodedQuery := url.QueryEscape(rawQuery)
-	searchURL := fmt.Sprintf("%s?q=%s", apiURL, encodedQuery)
+	searchURL := fmt.Sprintf("%s?q=%s&sort=author-date", apiURL, encodedQuery)
 	log.Println("run new commit search")
 	req, err := http.NewRequest("GET", searchURL, nil)
 	if err != nil {

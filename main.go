@@ -13,16 +13,16 @@ var respBytes []byte
 var lastUpdate time.Time
 
 func main() {
-	http.HandleFunc("/latest", ServeCommitList)
+	http.HandleFunc("/latest", ServeLatestCommitList)
 	http.ListenAndServe(":80", nil)
 }
 
-// ServeCommitList _
-func ServeCommitList(w http.ResponseWriter, r *http.Request) {
+// ServeLatestCommitList _
+func ServeLatestCommitList(w http.ResponseWriter, r *http.Request) {
 	log.Printf("GET %s: %s", r.RequestURI, r.RemoteAddr)
 	if respBytes == nil || time.Now().Sub(lastUpdate) >= time.Hour {
 		var err error
-		cacheCommitList, err := services.SearchCommit()
+		cacheCommitList, err := services.SearchLatestCommit()
 		if err != nil {
 			log.Fatal(err)
 		}
