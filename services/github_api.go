@@ -93,6 +93,9 @@ func SearchLatestCommit() ([]*TrimmedCommitItem, error) {
 	}
 	result := []*TrimmedCommitItem{}
 	for _, item := range uResp.Items {
+		if len(item.Commit.Message) >= 120 {
+			continue
+		}
 		trimmedItem := &TrimmedCommitItem{
 			URL:     item.HTMLURL,
 			Author:  item.Commit.Author.Name,
