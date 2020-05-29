@@ -1,38 +1,44 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"log"
-	"net/http"
+	"os"
+	"os/signal"
+	"sb-scanner/route"
+	"syscall"
 	"time"
 
-	"github.com/wonwooseo/sb-scanner/services"
+	"github.com/labstack/echo/v4"
 )
 
-var respBytes []byte
-var lastUpdate time.Time
-
 func main() {
-	http.HandleFunc("/latest", ServeLatestCommitList)
-	http.ListenAndServe(":80", nil)
-}
+	e := echo.New()
+	e.HideBanner = true
 
-// ServeLatestCommitList _
-func ServeLatestCommitList(w http.ResponseWriter, r *http.Request) {
-	log.Printf("GET %s: %s", r.RequestURI, r.RemoteAddr)
-	if respBytes == nil || time.Now().Sub(lastUpdate) >= time.Hour {
-		var err error
-		cacheCommitList, err := services.SearchLatestCommit()
-		if err != nil {
-			log.Fatal(err)
+	route.AddRoutes(e)
+
+	// graceful exit logics
+	errc := make(chan error)     // channel to receive error caused by server
+	sigc := make(chan os.Signal) // channel to receive signal
+	signal.Notify(sigc, syscall.SIGTERM, syscall.SIGINT)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	go func() {
+		if err := e.Start(":80"); err != nil {
+			errc <- err
 		}
-		respBytes, err = json.Marshal(cacheCommitList)
-		if err != nil {
-			log.Println(err)
-			return
+	}()
+
+	select {
+	case <-sigc:
+		log.Println("gracefully exiting..")
+		if err := e.Shutdown(ctx); err != nil {
+			e.Logger.Fatal(err)
 		}
-		lastUpdate = time.Now()
+		log.Println("bye!")
+	case err := <-errc:
+		log.Fatal(err)
 	}
-	w.Header().Add("Content-Type", "application/json")
-	w.Write(respBytes)
 }

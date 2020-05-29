@@ -107,6 +107,6 @@ func SearchLatestCommit() ([]*TrimmedCommitItem, error) {
 		}
 		result = append(result, trimmedItem)
 	}
-	log.Printf("finished new commit search (feched commits: %d)", len(result))
+	log.Printf("finished new commit search (fetched commits: %d)", len(result))
 	return result, nil
 }
