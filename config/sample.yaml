@@ -1,0 +1,16 @@
+github:
+  auth: # GitHub App authentication
+    enabled: true
+    app_id: your_app_id
+    installation_id: your_installation_id
+    key: your_PEM_encoded_private_key
+  search:
+    per_page: 100 # results per page
+    max_pages: 5 # maximum number of pages to fetch
+    rate_limit_wait: 2s # duration between searches to avoid rate limiting
+    keywords: # search keywords
+      - "sb"
+
+db:
+  url: "mongodb://localhost:27017"
+  name: sb-scanner

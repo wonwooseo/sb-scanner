@@ -1,4 +1,5 @@
 .DS_STORE
 
-serve_api
-serve_api_linux
+/out
+/config
+!/config/sample.yaml
