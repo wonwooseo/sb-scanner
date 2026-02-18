@@ -124,6 +124,47 @@ const getSentimentLabel = () => {
   opacity: 1;
 }
 
+@media (max-width: 640px) {
+  .card-header {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .author-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .time {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .sentiment {
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    padding: 3px 6px;
+  }
+
+  .sentiment::after {
+    width: 140px;
+    font-size: 0.7rem;
+    padding: 6px;
+    bottom: auto;
+    top: 125%;
+  }
+
+  .card-message {
+    padding: 12px;
+    margin: 4px;
+  }
+}
+
 .sentiment-positive {
   background-color: #d1fae5;
   color: #065f46;

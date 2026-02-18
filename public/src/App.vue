@@ -169,4 +169,23 @@ body {
   font-size: 0.9rem;
   font-style: italic;
 }
+
+@media (max-width: 640px) {
+  .app-container {
+    padding: 12px;
+  }
+
+  .app-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .app-header p {
+    font-size: 0.95rem;
+  }
+
+  .cards-container {
+    padding: 16px;
+    gap: 16px;
+  }
+}
 </style>
