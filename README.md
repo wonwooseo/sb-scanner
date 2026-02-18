@@ -1,6 +1,7 @@
 # SB Scanner
+> Exhibits SB commit messages on Github.
 
-### TODO
-- 배포환경 확정
-- 컨픽 설정방식 확정
-  - github app 키 저장방식
+## Deployment
+Deployed on [Render](https://render.com)
+
+[Go to Web](https://sb-scanner.onrender.com)

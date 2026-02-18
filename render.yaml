@@ -3,7 +3,7 @@ projects:
   environments:
   - name: production
     services:
-    - name: sb-scanner-web
+    - name: sb-scanner
       type: web
       runtime: image
       image:
