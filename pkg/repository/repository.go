@@ -35,28 +35,25 @@ func NewRepository(dbURL, dbName string) (*Repository, error) {
 
 const collectionCommits = "commits"
 
-func (r *Repository) PutCommits(ctx context.Context, commits []model.Commit) (int, error) {
+func (r *Repository) PutCommits(ctx context.Context, commits []model.Commit) error {
 	col := r.dbcli.Database(r.database).Collection(collectionCommits)
 
-	input := make([]any, len(commits))
-	for i, commit := range commits {
-		doc := bson.M{
-			"_id":     commit.ID,
-			"sha":     commit.SHA,
-			"url":     commit.URL,
-			"message": commit.Message,
-			"author":  commit.Author,
-			"time":    commit.Time,
-		}
-		input[i] = doc
+	input := []mongo.WriteModel{}
+	for _, commit := range commits {
+		wm := mongo.NewUpdateOneModel().
+			SetFilter(bson.M{"_id": commit.ID}).
+			SetUpdate(bson.M{"$set": commit}).
+			SetUpsert(true)
+		input = append(input, wm)
 	}
 
-	res, err := col.InsertMany(ctx, input, options.InsertMany().SetOrdered(false)) // ignore duplicates
+	opts := options.BulkWrite().SetOrdered(false)
+	_, err := col.BulkWrite(ctx, input, opts)
 	if err != nil {
-		return 0, fmt.Errorf("failed to insert commit documents: %w", err)
+		return fmt.Errorf("failed to bulk write commits to db: %w", err)
 	}
 
-	return len(res.InsertedIDs), nil
+	return nil
 }
 
 func (r *Repository) GetCommits(ctx context.Context, bookmark *string, limit int64) ([]model.Commit, error) {

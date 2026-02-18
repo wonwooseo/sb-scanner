@@ -14,6 +14,8 @@ import (
 	"sb-scanner/pkg/github"
 	pkglog "sb-scanner/pkg/logger"
 	"sb-scanner/pkg/repository"
+	"sb-scanner/pkg/sentiment"
+	"sb-scanner/pkg/sentiment/ollama"
 )
 
 func Sync() *cobra.Command {
@@ -74,6 +76,18 @@ func Sync() *cobra.Command {
 				rateLimitWait = 2 * time.Second
 			}
 
+			ollamaModel := v.GetString("ollama.model")
+			if ollamaModel == "" {
+				logger.Error("ollama.model is not set")
+				os.Exit(1)
+			}
+			ollamaURL := v.GetString("ollama.url")
+			if ollamaURL == "" {
+				logger.Warn("ollama.url is not set; using default(http://localhost:11434)")
+				ollamaURL = "http://localhost:11434"
+			}
+			evaluator := ollama.NewOllamaEvaluator(ollamaModel, ollamaURL)
+
 			now := time.Now()
 			stimeF, _ := cmd.Flags().GetString("stime")
 			stime, err := time.Parse(time.RFC3339, stimeF)
@@ -95,6 +109,7 @@ func Sync() *cobra.Command {
 			h := &syncHandler{
 				logger:         logger,
 				githubCli:      githubCli,
+				evaluator:      evaluator,
 				repo:           repo,
 				searchPerPage:  perPage,
 				searchMaxPage:  maxPage,
@@ -117,6 +132,7 @@ func Sync() *cobra.Command {
 type syncHandler struct {
 	logger    *slog.Logger
 	githubCli github.Client
+	evaluator sentiment.Evaluator
 	repo      *repository.Repository
 
 	searchPerPage  int
@@ -149,6 +165,14 @@ func (h *syncHandler) Run(stime, etime time.Time) error {
 
 			var commits []model.Commit
 			for _, c := range searched.Items {
+				h.logger.Debug("processing commit", "commit_sha", c.SHA, "commit_message", c.Commit.Message)
+				sentiment, err := h.evaluator.Evaluate(context.Background(), c.Commit.Message)
+				if err != nil {
+					h.logger.Error("failed to evaluate sentiment", "err", err, "commit_sha", c.SHA)
+					return err
+				}
+				h.logger.Debug("evaluated sentiment for commit", "commit_sha", c.SHA, "sentiment_score", sentiment.Score)
+
 				commits = append(commits, model.Commit{
 					ID:      fmt.Sprintf("%d:%s", c.Commit.Author.Date.Unix(), c.SHA[:7]),
 					SHA:     c.SHA,
@@ -159,15 +183,18 @@ func (h *syncHandler) Run(stime, etime time.Time) error {
 						AvatarURL: c.AuthorMeta.AvatarURL,
 					},
 					Time: c.Commit.Author.Date,
+					Sentiment: model.Sentiment{
+						Score: sentiment.Score,
+						Model: sentiment.Model,
+					},
 				})
 			}
-			inserted, err := h.repo.PutCommits(context.Background(), commits)
-			if err != nil {
+			if err := h.repo.PutCommits(context.Background(), commits); err != nil {
 				h.logger.Error("failed to put commits to db", "err", err)
 				return err
 			}
 
-			h.logger.Debug("inserted commits to database", "page", searchPage, "commits_found", len(commits), "commits_inserted", inserted)
+			h.logger.Debug("inserted commits to database", "page", searchPage, "commits_found", len(commits))
 			searchPage++
 
 			if h.rateLimitWait > 0 {

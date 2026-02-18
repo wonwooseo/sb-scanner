@@ -11,6 +11,10 @@ github:
     keywords: # search keywords
       - "sb"
 
+ollama:
+  url: "http://localhost:11434" # URL of the local Ollama instance
+  model: "sentiment-eval" # name of the local Ollama model to use for sentiment evaluation
+
 db:
   url: "mongodb://localhost:27017"
   name: sb-scanner
