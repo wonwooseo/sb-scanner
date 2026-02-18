@@ -142,6 +142,8 @@ type syncHandler struct {
 }
 
 func (h *syncHandler) Run(stime, etime time.Time) error {
+	shaMap := make(map[string]bool)
+
 	// max 5 keywords per search due to GitHub Search API limitations
 	for i := 0; i < len(h.searchKeywords); i += 5 {
 		searchPage := 1
@@ -164,8 +166,15 @@ func (h *syncHandler) Run(stime, etime time.Time) error {
 			h.logger.Debug("fetched commits from github", "page", searchPage, "items", len(searched.Items), "total_count", searched.TotalCount, "incomplete_results", searched.IncompleteResults)
 
 			var commits []model.Commit
+			var inserted int
 			for _, c := range searched.Items {
+				if shaMap[c.SHA] {
+					h.logger.Info("skipping duplicate commit", "commit_sha", c.SHA)
+					continue
+				}
+				shaMap[c.SHA] = true
 				h.logger.Debug("processing commit", "commit_sha", c.SHA, "commit_message", c.Commit.Message)
+
 				sentiment, err := h.evaluator.Evaluate(context.Background(), c.Commit.Message)
 				if err != nil {
 					h.logger.Error("failed to evaluate sentiment", "err", err, "commit_sha", c.SHA)
@@ -188,17 +197,22 @@ func (h *syncHandler) Run(stime, etime time.Time) error {
 						Model: sentiment.Model,
 					},
 				})
-			}
-			if err := h.repo.PutCommits(context.Background(), commits); err != nil {
-				h.logger.Error("failed to put commits to db", "err", err)
-				return err
+				inserted++
 			}
 
-			h.logger.Debug("inserted commits to database", "page", searchPage, "commits_found", len(commits))
+			if len(commits) > 0 {
+				if err := h.repo.PutCommits(context.Background(), commits); err != nil {
+					h.logger.Error("failed to put commits to db", "err", err)
+					return err
+				}
+				h.logger.Info("inserted commits to database", "page", searchPage, "commits_found", len(searched.Items), "commits_inserted", inserted)
+			} else {
+				h.logger.Info("no new commits to insert for this page", "page", searchPage)
+			}
 			searchPage++
 
 			if h.rateLimitWait > 0 {
-				h.logger.Debug("waiting for rate limit", "duration", h.rateLimitWait.String())
+				h.logger.Info("waiting for rate limit", "duration", h.rateLimitWait.String())
 				time.Sleep(h.rateLimitWait)
 			}
 		}
