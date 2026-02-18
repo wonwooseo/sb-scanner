@@ -8,6 +8,8 @@ services:
     envVars:
       - key: LOGLEVEL
         value: INFO
+      - key: SECRETS
+        value: /etc/secrets/secrets.yaml
     autoDeploy: false
     plan: free
     region: singapore
