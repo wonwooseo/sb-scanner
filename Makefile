@@ -18,9 +18,10 @@ build.batch:
 batch: build.batch
 
 image: web
-	@GOOS=linux go build -o ./out/api_linux -trimpath -ldflags "-w -s" ./cmd/api
+	@GOOS=linux GOARCH=amd64 go build -o ./out/api_linux -trimpath -ldflags "-w -s" ./cmd/api
 	@docker build -t $(DOCKER_IMAGE_NAME):latest .
 	@docker tag $(DOCKER_IMAGE_NAME):latest $(DOCKER_IMAGE_NAME):$(VERSION)
+	@docker scout cves $(DOCKER_IMAGE_NAME):latest
 
 push: image
 	@docker tag $(DOCKER_IMAGE_NAME):latest $(DOCKER_HUB_REPO):latest
