@@ -9,12 +9,10 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
-	"github.com/spf13/viper"
-
+	"sb-scanner/pkg/config"
 	pkglog "sb-scanner/pkg/logger"
 	"sb-scanner/router"
 )
@@ -26,19 +24,11 @@ func main() {
 	flag.Parse()
 
 	// read in config
-	v := viper.New()
-	if *cfgF != "" {
-		v.SetConfigFile(*cfgF)
-		if err := v.ReadInConfig(); err != nil {
-			slog.Error("failed to read config", "err", err)
-			os.Exit(1)
-		}
-	} else { // deployment should use env vars instead of config file
-		v.SetEnvPrefix("")
-		v.AutomaticEnv()
-		v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v, err := config.ReadConfig(*cfgF)
+	if err != nil {
+		slog.Error("failed to read config", "err", err)
+		os.Exit(1)
 	}
-
 	// set up logger
 	pkglog.InitLogger(v.GetString("loglevel"))
 
