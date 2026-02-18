@@ -1,15 +1,19 @@
-services:
-  - type: web
-    name: sb-scanner
-    runtime: image
-    image:
-      url: docker.io/antares1959/sb-scanner-web:latest
-    startCommand: ./api --port $PORT
-    envVars:
-      - key: LOGLEVEL
-        value: INFO
-      - key: SECRETS
-        value: /etc/secrets/secrets.yaml
-    autoDeploy: false
-    plan: free
-    region: singapore
+projects:
+- name: sb-scanner
+  environments:
+  - name: production
+    services:
+    - name: sb-scanner-web
+      type: web
+      runtime: image
+      image:
+        url: docker.io/antares1959/sb-scanner-web:latest
+      startCommand: ./api --port 10000
+      envVars:
+        - key: LOGLEVEL
+          value: INFO
+        - key: SECRETS
+          value: /etc/secrets/secrets.yaml
+      autoDeploy: false
+      plan: free
+      region: singapore
