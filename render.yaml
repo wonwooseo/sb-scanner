@@ -1,6 +1,7 @@
 services:
   - type: web
     name: sb-scanner
+    runtime: image
     image:
       url: docker.io/antares1959/sb-scanner-web:latest
     startCommand: ./api --port $PORT
@@ -8,3 +9,5 @@ services:
       - key: LOGLEVEL
         value: INFO
     autoDeploy: false
+    plan: free
+    region: singapore
