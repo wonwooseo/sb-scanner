@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -26,10 +27,16 @@ func main() {
 
 	// read in config
 	v := viper.New()
-	v.SetConfigFile(*cfgF)
-	if err := v.ReadInConfig(); err != nil {
-		slog.Error("failed to read config", "err", err)
-		os.Exit(1)
+	if *cfgF != "" {
+		v.SetConfigFile(*cfgF)
+		if err := v.ReadInConfig(); err != nil {
+			slog.Error("failed to read config", "err", err)
+			os.Exit(1)
+		}
+	} else { // deployment should use env vars instead of config file
+		v.SetEnvPrefix("")
+		v.AutomaticEnv()
+		v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	}
 
 	// set up logger
