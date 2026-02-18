@@ -32,9 +32,15 @@ export interface Commit {
   message: string;
   author: Author;
   time: string;
+  sentiment: Sentiment;
 }
 
 export interface Author {
   username: string;
   avatar_url: string;
+}
+
+export interface Sentiment {
+  score: number;
+  model: string;
 }

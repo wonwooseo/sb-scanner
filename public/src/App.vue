@@ -14,6 +14,10 @@
         }"
         :message="commit.message"
         :time="commit.time"
+        :sentiment="{
+          score: commit.sentiment.score,
+          model: commit.sentiment.model,
+        }"
         :url="commit.url"
       />
       <div v-if="loading" class="loading-indicator">
@@ -88,7 +92,11 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
 .app-container {
   min-height: 100vh;
   background-color: #ffffff;
@@ -108,7 +116,6 @@ onUnmounted(() => {
   font-weight: 700;
   color: #1f2937;
   margin: 0 0 8px 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 }
 
 .app-header p {

@@ -2,9 +2,12 @@
   <div class="card">
     <a :href="props.url" target="_blank" rel="noopener" class="card-link">
       <div class="card-header">
-        <img :src="props.author.avatarURL" alt="Author Avatar" class="avatar" />
-        <span class="author-name">{{ props.author.username }}</span>
+        <img :src="props.author.avatarURL || 'https://github.githubassets.com/images/gravatars/gravatar-user-420.png?size=40'" alt="Author Avatar" class="avatar" />
+        <span class="author-name">{{ props.author.username || 'user' }}</span>
         <span class="time">{{ new Date(props.time).toLocaleString() }}</span>
+        <span class="sentiment" :class="`sentiment-${getSentimentLabel()}`" :data-tooltip="`Sentiment: ${props.sentiment.score.toFixed(2)}\nModel: ${props.sentiment.model}`">
+          {{ getSentimentLabel().toUpperCase() }}
+        </span>
       </div>
       <div class="card-message">
         {{ props.message }}
@@ -21,8 +24,19 @@ const props = defineProps<{
   };
   message: string;
   time: string;
+  sentiment: {
+    score: number;
+    model: string;
+  }
   url: string;
 }>();
+
+const getSentimentLabel = () => {
+  const score = props.sentiment.score;
+  if (score > 0.5) return 'positive';
+  if (score < -0.5) return 'negative';
+  return 'neutral';
+};
 </script>
 
 <style scoped>
@@ -30,7 +44,7 @@ const props = defineProps<{
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  overflow: visible;
   transition: box-shadow 0.3s ease;
 }
 
@@ -63,7 +77,6 @@ const props = defineProps<{
 
 .author-name {
   font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   font-size: 0.95rem;
   color: #1f2937;
   flex: 1;
@@ -72,11 +85,58 @@ const props = defineProps<{
 
 .time {
   font-size: 0.85rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 500;
   color: #6b7280;
   white-space: nowrap;
   letter-spacing: -0.005em;
+}
+
+.sentiment {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  position: relative;
+  cursor: pointer;
+}
+
+.sentiment::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  width: max-content;
+  white-space: pre-line;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 10;
+}
+
+.sentiment:hover::after {
+  opacity: 1;
+}
+
+.sentiment-positive {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.sentiment-neutral {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.sentiment-negative {
+  background-color: #fee2e2;
+  color: #7f1d1d;
 }
 
 .card-message {
