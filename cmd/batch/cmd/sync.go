@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"sb-scanner/model"
+	"sb-scanner/pkg/config"
 	"sb-scanner/pkg/github"
 	pkglog "sb-scanner/pkg/logger"
 	"sb-scanner/pkg/repository"
@@ -29,9 +29,8 @@ func Sync() *cobra.Command {
 				slog.Error("failed to read config flag", "err", err)
 				os.Exit(1)
 			}
-			v := viper.New()
-			v.SetConfigFile(cfgF)
-			if err := v.ReadInConfig(); err != nil {
+			v, err := config.ReadConfig(cfgF)
+			if err != nil {
 				slog.Error("failed to read config", "err", err)
 				os.Exit(1)
 			}
