@@ -2,7 +2,7 @@ services:
   - type: web
     name: sb-scanner
     image:
-      url: docker.io/wonwooseo/sb-scanner:latest
+      url: docker.io/antares1959/sb-scanner-web:latest
     startCommand: ./api --port $PORT
     envVars:
       - key: LOGLEVEL
