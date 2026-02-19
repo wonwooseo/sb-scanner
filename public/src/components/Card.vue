@@ -33,8 +33,8 @@ const props = defineProps<{
 
 const getSentimentLabel = () => {
   const score = props.sentiment.score;
-  if (score > 0.5) return 'positive';
-  if (score < -0.5) return 'negative';
+  if (score >= 0.3) return 'positive';
+  if (score <= -0.3) return 'negative';
   return 'neutral';
 };
 </script>
