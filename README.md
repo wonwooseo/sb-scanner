@@ -1,5 +1,5 @@
 # SB Scanner
-> Exhibits SB commit messages on Github.
+> 커밋 메시지를 예쁘게 씁시다.
 
 ## Deployment
 Deployed on [Render](https://render.com)

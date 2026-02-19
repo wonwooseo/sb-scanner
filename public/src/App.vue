@@ -1,8 +1,10 @@
 <template>
   <div class="app-container">
     <header class="app-header">
-      <h1>SB Scanner</h1>
-      <p>GitHub Commit Scanner</p>
+      <h1>
+        <a href="https://github.com/wonwooseo/sb-scanner" target="_blank" rel="noopener noreferrer">SB Scanner</a>
+      </h1>
+      <p>커밋 메시지를 예쁘게 씁시다.</p>
     </header>
     <div class="cards-container">
       <Card
@@ -47,7 +49,6 @@ const getCommits = async () => {
   try {
     loading.value = true;
     const data = await api.getCommits(null, 10);
-    console.log(data);
     commits.value = data.commits;
     currentBookmark.value = data.bookmark || null;
     hasMore.value = !!data.bookmark;
@@ -111,15 +112,21 @@ body {
   margin-bottom: 32px;
 }
 
-.app-header h1 {
-  font-size: 2.5rem;
+.app-header h1 a {
+  font-size: 3rem;
   font-weight: 700;
   color: #1f2937;
   margin: 0 0 8px 0;
+  text-decoration: none;
+}
+
+.app-header h1 a:hover {
+  color: #3b82f6;
+  text-decoration: underline;
 }
 
 .app-header p {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #6b7280;
   margin: 0;
   font-weight: 400;
