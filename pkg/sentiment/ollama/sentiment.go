@@ -31,11 +31,6 @@ func NewOllamaEvaluator(model, url string) *OllamaEvaluator {
 	}
 }
 
-const systemPrompt = `You are a commit message sentiment analysis assistant.
-Given a github commit message in Korean, you will analyze the sentiment and return a JSON object with a single key "score" whose value is a number between -1.0 (very negative) and 1.0 (very positive).
-Only output the JSON object and no additional commentary.
-`
-
 // Evaluate calls a local ollama instance to estimate sentiment for the provided text.
 // It expects the model to return or include a numeric score between -1.0 and 1.0.
 func (e *OllamaEvaluator) Evaluate(ctx context.Context, text string) (sentiment.Sentiment, error) {
