@@ -70,7 +70,7 @@ func (r *Repository) GetCommits(ctx context.Context, bookmark *string, limit int
 	}
 	defer cursor.Close(ctx)
 
-	var commits []model.Commit
+	commits := []model.Commit{}
 	for cursor.Next(ctx) {
 		var c model.Commit
 		if err := cursor.Decode(&c); err != nil {
