@@ -8,6 +8,7 @@ github:
     per_page: 100 # results per page
     max_pages: 5 # maximum number of pages to fetch
     rate_limit_wait: 2s # duration between searches to avoid rate limiting
+    max_commit_length: 500 # maximum length of commit messages to sync
     keywords: # search keywords
       - "sb"
 

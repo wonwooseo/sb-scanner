@@ -74,6 +74,11 @@ func Sync() *cobra.Command {
 				logger.Warn("invalid github.search.rate_limit_wait, using default (2s)")
 				rateLimitWait = 2 * time.Second
 			}
+			maxCommitLength := v.GetInt("github.search.max_commit_length")
+			if maxCommitLength <= 0 {
+				logger.Warn("invalid github.search.max_commit_length, using default (500)")
+				maxCommitLength = 500
+			}
 
 			ollamaModel := v.GetString("ollama.model")
 			if ollamaModel == "" {
@@ -106,14 +111,15 @@ func Sync() *cobra.Command {
 			}
 
 			h := &syncHandler{
-				logger:         logger,
-				githubCli:      githubCli,
-				evaluator:      evaluator,
-				repo:           repo,
-				searchPerPage:  perPage,
-				searchMaxPage:  maxPage,
-				rateLimitWait:  rateLimitWait,
-				searchKeywords: searchKeywords,
+				logger:          logger,
+				githubCli:       githubCli,
+				evaluator:       evaluator,
+				repo:            repo,
+				searchPerPage:   perPage,
+				searchMaxPage:   maxPage,
+				rateLimitWait:   rateLimitWait,
+				maxCommitLength: maxCommitLength,
+				searchKeywords:  searchKeywords,
 			}
 			if err := h.Run(stime, etime); err != nil {
 				os.Exit(1)
@@ -134,10 +140,11 @@ type syncHandler struct {
 	evaluator sentiment.Evaluator
 	repo      *repository.Repository
 
-	searchPerPage  int
-	searchMaxPage  int
-	rateLimitWait  time.Duration
-	searchKeywords []string
+	searchPerPage   int
+	searchMaxPage   int
+	rateLimitWait   time.Duration
+	maxCommitLength int
+	searchKeywords  []string
 }
 
 func (h *syncHandler) Run(stime, etime time.Time) error {
@@ -172,6 +179,10 @@ func (h *syncHandler) Run(stime, etime time.Time) error {
 					continue
 				}
 				shaMap[c.SHA] = true
+				if len(c.Commit.Message) > h.maxCommitLength {
+					h.logger.Info("skipping commit with message exceeding max length", "commit_sha", c.SHA, "message_length", len(c.Commit.Message))
+					continue
+				}
 				h.logger.Debug("processing commit", "commit_sha", c.SHA, "commit_message", c.Commit.Message)
 
 				sentiment, err := h.evaluator.Evaluate(context.Background(), c.Commit.Message)
