@@ -187,7 +187,8 @@ body {
 }
 
 .back-to-top {
-  color: #3b82f6;
+  color: #1f2937;
+  margin: 32px 0 0 0;
   text-decoration: none;
   font-style: normal;
   font-weight: 500;
@@ -195,7 +196,7 @@ body {
 }
 
 .back-to-top:hover {
-  color: #1d4ed8;
+  color: #3b82f6;
   text-decoration: underline;
 }
 
