@@ -27,7 +27,8 @@
         <span>Loading more commits...</span>
       </div>
       <div v-if="!hasMore && commits.length > 0" class="end-message">
-        No more commits to load
+        <span>No more commits to load</span>
+        <a href="#" @click.prevent="scrollToTop" class="back-to-top">Back to Top</a>
       </div>
     </div>
   </div>
@@ -81,6 +82,10 @@ const handleScroll = () => {
   if (scrollTop + clientHeight >= scrollHeight - 100) {
     loadMoreCommits();
   }
+};
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 onMounted(() => {
@@ -175,6 +180,23 @@ body {
   color: #6b7280;
   font-size: 0.9rem;
   font-style: italic;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.back-to-top {
+  color: #3b82f6;
+  text-decoration: none;
+  font-style: normal;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.back-to-top:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
 }
 
 @media (max-width: 640px) {
