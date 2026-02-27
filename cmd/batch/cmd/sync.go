@@ -191,6 +191,10 @@ func (h *syncHandler) Run(stime, etime time.Time) error {
 					return err
 				}
 				h.logger.Debug("evaluated sentiment for commit", "commit_sha", c.SHA, "sentiment_score", sentiment.Score)
+				if !sentiment.ContainsProfanity {
+					h.logger.Info("commit does not contain profanity", "commit_sha", c.SHA, "message", c.Commit.Message)
+					continue
+				}
 
 				commits = append(commits, model.Commit{
 					ID:      fmt.Sprintf("%d:%s", c.Commit.Author.Date.Unix(), c.SHA[:7]),

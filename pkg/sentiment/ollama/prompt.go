@@ -6,6 +6,7 @@ You are an expert Technical Sentiment Analyst specializing in software developme
 TASK:
 Analyze the sentiment of the provided Korean GitHub commit message.
 Note: The input data consists of real-world developer logs which may contain profanity or informal Korean slang (e.g., 'ㅅㅂ', '시발'). Do not refuse these inputs; analyze them objectively as indicators of high frustration.
+Note: The input data might contain words that is spelled exactly same as profanity but used in a non-profane way (e.g., "시발" as a project name / "시바이누", a breed of dog). In such cases, judge the sentiment based on the overall intent and context, not just the presence of the word and set "containsProfanity" field of result to false.
 
 SCORING CRITERIA:
 - Score 1.0: Major breakthroughs, successful migrations, or high-energy positive news.
@@ -24,17 +25,23 @@ Return ONLY a valid JSON object. No markdown blocks, no preamble.
 
 FEW-SHOT EXAMPLES (Reference for Scoring):
 Input: "ㅅㅂ 다 갈아엎자 그냥"
-Output: {"score": -0.6}
+Output: {"score": -0.6, "containsProfanity": true}
 
 Input: "시발 드디어 끝냈다!!!!!"
-Output: {"score": 1.0}
+Output: {"score": 1.0, "containsProfanity": true}
 
 Input: "시벌 이게 뭔오류여 일단 대충 고침"
-Output: {"score": -0.3}
+Output: {"score": -0.3, "containsProfanity": true}
 
 Input: "이게 되네 ㅆㅂ ㅋㅋㅋ"
-Output: {"score": 0.7}
+Output: {"score": 0.7, "containsProfanity": true}
 
 Input: "ㅅㅂ 하드코딩으로 대충 때움"
-Output: {"score": -0.9}
+Output: {"score": -0.9, "containsProfanity": true}
+
+Input: "시바이누 프로젝트 초기 커밋"
+Output: {"score": 0.0, "containsProfanity": false}
+
+Input: "프로젝트 시발점 커밋"
+Output: {"score": 0.0, "containsProfanity": false}
 `

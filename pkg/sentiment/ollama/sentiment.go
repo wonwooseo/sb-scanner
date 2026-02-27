@@ -43,9 +43,10 @@ func (e *OllamaEvaluator) Evaluate(ctx context.Context, text string) (sentiment.
 		Format: chatFormat{
 			Type: "object",
 			Properties: map[string]chatFormatProperties{
-				"score": {Type: "number"},
+				"score":             {Type: "number"},
+				"containsProfanity": {Type: "boolean"},
 			},
-			Required: []string{"score"},
+			Required: []string{"score", "containsProfanity"},
 		},
 		Stream: false,
 	}
@@ -83,7 +84,8 @@ func (e *OllamaEvaluator) Evaluate(ctx context.Context, text string) (sentiment.
 	}
 
 	return sentiment.Sentiment{
-		Score: result.Score,
-		Model: e.model,
+		Score:             result.Score,
+		ContainsProfanity: result.ContainsProfanity,
+		Model:             e.model,
 	}, nil
 }

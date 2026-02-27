@@ -31,5 +31,6 @@ type chatFormatProperties struct {
 }
 
 type scoreResult struct {
-	Score float64 `json:"score"`
+	Score             float64 `json:"score"`
+	ContainsProfanity bool    `json:"containsProfanity"`
 }
